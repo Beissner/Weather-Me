@@ -1,7 +1,7 @@
 // TODO figure out how to have gradient behind swiper
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
@@ -14,9 +14,19 @@ import { WeatherConditions } from '../utils/WeatherConditions';
 import { fetchWeather } from '../utils/fetchWeather';
 import { fetchForecast } from '../utils/fetchForecast';
 import ForecastList from '../components/ForecastList';
+import { getDate } from '../utils/getDate';
 
 
 export const Weather = (props) => {
+
+    const [city, setCity] = useState(null);
+    const [country, setCountry] = useState(null);
+    const [errorMessage, setErrorMsg] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [temp, setTemp] = useState(null);
+    const [weather, setWeather] = useState(null);
+    const [forecast, setForecast] = useState(null);
+    const [weatherDetails, setWeatherDetails] = useState(null);
 
     useEffect(() => {
        const fetchData = async () => {
@@ -38,46 +48,47 @@ export const Weather = (props) => {
             const latitude = coordinatesData.coords.latitude;
 
             const weather = await fetchWeather(longitude, latitude);
-            const forecast = await fetchForecast(longitude, latitude);
+            setWeather(weather);
+            setForecast(await fetchForecast(longitude, latitude));
+            //console.log('value of WeatherConditions[weather.weather[0].main]',WeatherConditions[weather.weather[0].main]);
+            setWeatherDetails(WeatherConditions[weather.weather[0].main]);
        }
  
        fetchData();
 
     }, []);
 
-    const [city, setCity] = useState(null);
-    const [country, setCountry] = useState(null);
-    const [errorMessage, setErrorMsg] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [temp, setTemp] = useState(null);
-    const [weatherCondition, setWeather] = useState(null);
-    const [forecast, setForecast] = useState([]);
-
-   
-
+  
+  
     const renderWeather = () => {
-        //const { city, country, temp, weatherCondition, weatherForecastArray } = this.state;
-        //<Swiper activeDotColor={'white'}>
-        //<ForecastList forecastList={forecast} />
+        const {container, rowContainer, tempTxt } = styles;
+        console.log('value of weatherDetails: ', weatherDetails);
 
-    //     <MaterialCommunityIcons
-    //     name={WeatherConditions[weatherCondition].icon}
-    //     size={95}
-    //     color='white'
-    // />
-    // <Text style={styles.cityTxt}>{city}</Text>
-    // <Text style={styles.countryTxt}>{country}</Text>
-    //<MaterialCommunityIcons name="circle-outline" size={10} color="white" style={{ marginTop: -25 }} />
         return (
            
-                <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center'}}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                       
-                        <Text style={{ fontSize: 50, marginLeft: 15, fontWeight: '100' }}>weather stuff here</Text>
-                        
+                <SafeAreaView style={[container,{backgroundColor: weatherDetails.color}]}>
+                    <View style={{position: 'absolute', top: 50, alignItems: 'center'}}>
+                        <Text style={{color: '#FFF', fontSize: 26, opacity: 0.8}}>{getDate()}</Text>
+                        <Text style={{color: '#FFF', fontSize: 22, opacity: 0.8}}>{weather.name}</Text>
                     </View>
+
+                    <MaterialCommunityIcons
+                        name={weatherDetails.icon}
+                        size={125}
+                        color='white'
+                    />
                    
-                </View>
+                    <View style={rowContainer}>
+                        <Text style={tempTxt}>{Math.round(weather.main.temp)}</Text>
+                        <MaterialCommunityIcons name="circle-outline" size={15} color="white" style={{ marginTop: -40, fontWeight: '300' }} />
+                    </View>
+                    <View style={rowContainer}>
+                        <MaterialCommunityIcons name="weather-windy" size={20} color="white" style={{opacity: 0.8}}/>
+                        <Text style={styles.windTxt}>{Math.round(weather.wind.speed)}</Text>
+                        <MaterialCommunityIcons name="water-outline" size={20} color="white" style={{opacity: 0.8}}/>
+                        <Text style={styles.humidityTxt}>{`${weather.main.humidity} %`}</Text>
+                    </View>
+                </SafeAreaView>
         );
     };
 
@@ -88,29 +99,41 @@ export const Weather = (props) => {
     return (
         
         <View style={styles.container}>
-            {loading ? null : renderWeather()}
+        {weatherDetails !== null && renderWeather()}
         </View>
     )
-
-        
 }
 
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: '100%',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'center'
     },
-    cityTxt: {
-        color: 'white',
-        fontSize: 30,
-        opacity: 0.9
+    rowContainer: {
+        flexDirection: 'row', 
+        alignItems: 'center'
     },
-    countryTxt: {
+    tempTxt: {
+        fontSize: 85, 
+        color:'white',
+        fontWeight: '200',
+        marginRight: 5
+    },
+    windTxt: {
         color: 'white',
-        fontSize: 20,
-        opacity: 0.7
+        fontSize: 18,
+        marginRight: 15,
+        marginLeft: 4,
+        opacity: 0.8
+    },
+    humidityTxt: {
+        color: 'white',
+        fontSize: 18,
+        marginLeft: 4,
+        opacity: 0.8
     },
     ellipses: {
         fontSize: 70,
@@ -118,3 +141,19 @@ const styles = StyleSheet.create({
         paddingBottom: -10
     }
 });
+
+
+/**
+ * 
+ *  //<Swiper activeDotColor={'white'}>
+        //<ForecastList forecastList={forecast} />
+
+    //     <MaterialCommunityIcons
+    //     name={WeatherConditions[weatherCondition].icon}
+    //     size={95}
+    //     color='white'
+    // />
+    // <Text style={styles.cityTxt}>{city}</Text>
+    // <Text style={styles.countryTxt}>{country}</Text>
+    //<MaterialCommunityIcons name="circle-outline" size={10} color="white" style={{ marginTop: -25 }} />
+ */

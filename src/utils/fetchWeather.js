@@ -8,11 +8,11 @@ export const fetchWeather = (long, lat) => {
     return axios
     .post(url)
     .then(response => {
-      console.log('Successfully fetched weather!', response);
+      console.info('Successfully fetched weather!', response);
       return response.data;
     })
     .catch(error => {
-      console.log('Failed to fetch weather', {error});
+      console.warn('Failed to fetch weather', {error});
     });
 };
 
