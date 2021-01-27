@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import Weather from './src/components/Weather';
+import { Weather } from './src/components/Weather';
 
 export default class App extends React.Component {
 
