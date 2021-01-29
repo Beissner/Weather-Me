@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { API_KEY2 } from '../config/WeatherAPIKey';
+import { API_KEY } from '../config/WeatherAPIKey';
 
 export const fetchForecast = (long, lat) => {
 
-    //const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${long}&APPID=${API_KEY}&units=imperial`;
-    const url = `https://api.darksky.net/forecast/${API_KEY2}/${lat},${long}`;
+    const url = `https://api.darksky.net/forecast/${API_KEY}/${lat},${long}`;
     
     return axios
     .get(url)
