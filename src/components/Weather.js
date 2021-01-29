@@ -1,7 +1,7 @@
 // TODO figure out how to have gradient behind swiper
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Linking } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
@@ -50,7 +50,6 @@ export const Weather = (props) => {
             const weather = await fetchWeather(longitude, latitude);
             setWeather(weather);
             setForecast(await fetchForecast(longitude, latitude));
-            //console.log('value of WeatherConditions[weather.weather[0].main]',WeatherConditions[weather.weather[0].main]);
             setWeatherDetails(WeatherConditions[weather.weather[0].main]);
        }
  
@@ -59,17 +58,15 @@ export const Weather = (props) => {
     }, []);
 
   
-  
     const renderWeather = () => {
         const {container, rowContainer, tempTxt } = styles;
-        console.log('value of weatherDetails: ', weatherDetails);
 
         return (
            
                 <SafeAreaView style={[container,{backgroundColor: weatherDetails.color}]}>
                     <View style={{position: 'absolute', top: 50, alignItems: 'center'}}>
                         <Text style={{color: '#FFF', fontSize: 26, opacity: 0.8}}>{getDate()}</Text>
-                        <Text style={{color: '#FFF', fontSize: 22, opacity: 0.8}}>{weather.name}</Text>
+                        <Text style={{color: '#FFF', fontSize: 20, opacity: 0.8}}>{weather.name}</Text>
                     </View>
 
                     <MaterialCommunityIcons
@@ -77,7 +74,8 @@ export const Weather = (props) => {
                         size={125}
                         color='white'
                     />
-                   
+                    <Text style={{color: '#FFF', fontSize: 22, opacity: 0.8}}>{weatherDetails.title}</Text>
+
                     <View style={rowContainer}>
                         <Text style={tempTxt}>{Math.round(weather.main.temp)}</Text>
                         <MaterialCommunityIcons name="circle-outline" size={15} color="white" style={{ marginTop: -40, fontWeight: '300' }} />
@@ -88,18 +86,19 @@ export const Weather = (props) => {
                         <MaterialCommunityIcons name="water-outline" size={20} color="white" style={{opacity: 0.8}}/>
                         <Text style={styles.humidityTxt}>{`${weather.main.humidity} %`}</Text>
                     </View>
+                    <Text 
+                        onPress={() => Linking.openURL('https://darksky.net/poweredby/')}
+                        style={{position: 'absolute', bottom: 30, alignItems: 'center', color: '#FFF', fontSize: 14, opacity: 0.8}}>
+                        Powered by Dark Sky
+                    </Text>
                 </SafeAreaView>
         );
     };
 
-    // const renderLoading = () => {
-    //     return <AnimatedEllipsis style={styles.ellipses} />;
-    // };
-
     return (
         
         <View style={styles.container}>
-        {weatherDetails !== null && renderWeather()}
+        {weatherDetails == null ? <ActivityIndicator size="large" color="#708090" /> : renderWeather()}
         </View>
     )
 }
@@ -110,7 +109,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        opacity: 0.8
     },
     rowContainer: {
         flexDirection: 'row', 
@@ -124,14 +124,14 @@ const styles = StyleSheet.create({
     },
     windTxt: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 20,
         marginRight: 15,
         marginLeft: 4,
         opacity: 0.8
     },
     humidityTxt: {
         color: 'white',
-        fontSize: 18,
+        fontSize: 20,
         marginLeft: 4,
         opacity: 0.8
     },

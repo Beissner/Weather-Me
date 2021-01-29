@@ -7,19 +7,19 @@ export const WeatherConditions = {
     },
     Clear: {
         color: '#f7b733',
-        title: 'So Sunny',
+        title: 'Sunny',
         subtitle: 'It is hurting my eyes',
         icon: 'weather-sunny'
     },
     Thunderstorm: {
         color: '#616161',
-        title: 'A Storm is coming',
-        subtitle: 'Because Gods are angry',
+        title: 'Stormy',
+        subtitle: 'A Storm is coming',
         icon: 'weather-lightning'
     },
     Clouds: {
         color: '#708090',
-        title: 'Clouds',
+        title: 'Cloudy',
         subtitle: 'Everywhere',
         icon: 'weather-cloudy'
     },
@@ -43,7 +43,7 @@ export const WeatherConditions = {
         icon: 'weather-hail'
     },
     Mist: {
-        color: '#3CD3AD',
+        color: '#708090',
         title: 'Mist',
         subtitle: "Don't roam in forests!",
         icon: 'weather-fog'
