@@ -1,22 +1,16 @@
 import axios from 'axios';
-import { API_KEY } from './WeatherAPIKey';
+import { API_KEY2 } from '../config/WeatherAPIKey';
 
 export const fetchForecast = (long, lat) => {
 
     //const url = `http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${long}&APPID=${API_KEY}&units=imperial`;
-    //https://api.darksky.net/forecast/0123456789abcdef9876543210fedcba/42.3601,-71.0589
-    //const url = `http://api.darksky.net/forecast/ae142412eff64babeb1168658d4f2f2c/${lat},${long}`;
-
-    //open weather map api key
-    //const url  = `http://api.openweathermap.org/data/2.5/weather?id=524901&appid=${key}`;
-    //5c2858738450f4c0c981e4a223d81c21
-    const url = `https://api.darksky.net/forecast/5c2858738450f4c0c981e4a223d81c21/${lat},${long}`;
+    const url = `https://api.darksky.net/forecast/${API_KEY2}/${lat},${long}`;
     
     return axios
     .get(url)
     .then(response => {
         console.info('Successfully fetched forecast!', response);
-
+        const weatherObj = {temp: response.data.currently.apparentTemperature};
         // const convertedDate = new Date(response.data.list[0].dt * 1000);
         // console.log('value of convertedDate: ', convertedDate);
         // const forecastArray = response.data.list.map((entry, index) => {

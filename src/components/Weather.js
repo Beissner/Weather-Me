@@ -9,7 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 //import AnimatedEllipsis from 'react-native-animated-ellipsis';
 import _ from 'lodash';
 //import Swiper from 'react-native-swiper';
-import { API_KEY } from '../utils/WeatherAPIKey';
+import { API_KEY } from '../config/WeatherAPIKey';
 import { WeatherConditions } from '../utils/WeatherConditions';
 import { fetchWeather } from '../utils/fetchWeather';
 import { fetchForecast } from '../utils/fetchForecast';
