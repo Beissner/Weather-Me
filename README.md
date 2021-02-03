@@ -6,4 +6,4 @@
 * Display week and hourly forecast in horizontal carousel
 
 
-<img src="https://github.com/Beissner/TodoList/blob/master/assets/screenshot.png?raw=true" width="300">
+<img src="https://github.com/Beissner/Weather-Me/blob/master/assets/screenshot.png?raw=true" width="300">
