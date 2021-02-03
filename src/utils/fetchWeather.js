@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { API_KEY } from '../config/WeatherAPIKey';
+import { OPEN_WEATHER_MAP_API_KEY } from '../config/WeatherAPIKey';
 
 export const fetchWeather = (long, lat) => {
 
-    const url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&APPID=${API_KEY}&units=imperial`;
+    const url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&APPID=${OPEN_WEATHER_MAP_API_KEY}&units=imperial`;
 
     return axios
     .post(url)

@@ -1,32 +1,29 @@
-// TODO figure out how to have gradient behind swiper
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Linking } from 'react-native';
-import AppLoading from 'expo-app-loading';
+import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Linking, Dimensions, TouchableOpacity, ImageBackground } from 'react-native';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-//import AnimatedEllipsis from 'react-native-animated-ellipsis';
 import _ from 'lodash';
-//import Swiper from 'react-native-swiper';
-import { API_KEY } from '../config/WeatherAPIKey';
 import { WeatherConditions } from '../utils/WeatherConditions';
 import { fetchWeather } from '../utils/fetchWeather';
 import { fetchForecast } from '../utils/fetchForecast';
-import ForecastList from '../components/ForecastList';
+import Carousel from 'react-native-snap-carousel';
 import { getDate } from '../utils/getDate';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CAROUSEL_HOURLY_ITEM_WIDTH = 60;
+const CAROUSEL_WEEK_ITEM_WIDTH = 80;
 
 
 export const Weather = (props) => {
 
     const [city, setCity] = useState(null);
-    const [country, setCountry] = useState(null);
     const [errorMessage, setErrorMsg] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [temp, setTemp] = useState(null);
-    const [weather, setWeather] = useState(null);
     const [forecast, setForecast] = useState(null);
     const [weatherDetails, setWeatherDetails] = useState(null);
+    const [activeSlide, setActiveSlide] = useState(0); 
+    const [showHourly, setShowHourly] = useState(true); 
 
     useEffect(() => {
        const fetchData = async () => {
@@ -41,65 +38,122 @@ export const Weather = (props) => {
             const coordinatesData = await Location.getCurrentPositionAsync({});
             const location = await Location.reverseGeocodeAsync(coordinatesData.coords);
             setCity(location[0].city);
-            setCountry(location[0].country);
 
             //fetch current weather data
             const longitude = coordinatesData.coords.longitude;
             const latitude = coordinatesData.coords.latitude;
 
-            const weather = await fetchWeather(longitude, latitude);
-            setWeather(weather);
-            setForecast(await fetchForecast(longitude, latitude));
-            setWeatherDetails(WeatherConditions[weather.weather[0].main]);
+            const forecast = await fetchForecast(longitude, latitude);
+            setForecast(forecast);
+
+            setWeatherDetails(WeatherConditions[forecast.icon]);
        }
  
        fetchData();
 
     }, []);
 
-  
+    const renderHourlyItem = ({item}) => {
+        return (
+            <View style={{ alignItems: 'center',  paddingHorizontal: 4 }}>
+                <Text style={{ color: '#fff', fontSize: 18, paddingBottom: 12}}>{ item.time }</Text>
+                <View style={styles.rowContainer}>
+                    <Text style={{ color: '#fff', fontSize: 22, fontWeight: '500' }}>{ item.temp }</Text>
+                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                </View>
+            </View>
+        );
+    };
+
+    const renderWeekItem = ({item}) => {
+        return (
+            <View style={{ alignItems: 'center',  paddingHorizontal: 4 }}>
+                <Text style={{ color: '#fff', fontSize: 18, paddingBottom: 12}}>{ item.day }</Text>
+                <View style={styles.rowContainer}>
+                    <Text style={{ color: '#fff', fontSize: 22, fontWeight: '500' }}>{item.tempHigh}</Text>
+                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                </View>
+                <View style={styles.rowContainer}>
+                    <Text style={{ color: '#fff', fontSize: 20 }}>{item.tempLow}</Text>
+                    <MaterialCommunityIcons name="circle-outline" size={7} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                </View>
+            </View>
+        );
+    };
+
+    const hourlyCarousel = () => <Carousel
+        data={forecast.hourlyForecast}
+        onSnapToItem={(index) => setActiveSlide(index)} // we will update active slide index
+        renderItem={renderHourlyItem}
+        sliderWidth={SCREEN_WIDTH-20}
+        itemWidth={CAROUSEL_HOURLY_ITEM_WIDTH}
+        firstItem={3}
+    />;
+
+    const weeklyCarousel = () => <Carousel
+        data={forecast.weekForecast}
+        onSnapToItem={(index) => setActiveSlide(index)} 
+        renderItem={renderWeekItem}
+        sliderWidth={SCREEN_WIDTH-20}
+        itemWidth={CAROUSEL_WEEK_ITEM_WIDTH}
+        firstItem={3}
+    />;
+
     const renderWeather = () => {
         const {container, rowContainer, tempTxt } = styles;
 
         return (
-           
-                <SafeAreaView style={[container,{backgroundColor: weatherDetails.color}]}>
+                <ImageBackground 
+                    source={require('../../assets/backgrounds/background2.png')} 
+                    resizeMode='cover' 
+                    style={container}
+                >
                     <View style={{position: 'absolute', top: 50, alignItems: 'center'}}>
                         <Text style={{color: '#FFF', fontSize: 26, opacity: 0.8}}>{getDate()}</Text>
-                        <Text style={{color: '#FFF', fontSize: 20, opacity: 0.8}}>{weather.name}</Text>
+                        <Text style={{color: '#FFF', fontSize: 20, opacity: 0.8}}>{city}</Text>
                     </View>
 
-                    <MaterialCommunityIcons
-                        name={weatherDetails.icon}
-                        size={125}
-                        color='white'
-                    />
-                    <Text style={{color: '#FFF', fontSize: 22, opacity: 0.8}}>{weatherDetails.title}</Text>
+                   
+                    <Text style={{color: '#FFF', fontSize: 22, marginVertical: 10}}>{forecast.title}</Text>
 
                     <View style={rowContainer}>
-                        <Text style={tempTxt}>{Math.round(weather.main.temp)}</Text>
+                        <Text style={tempTxt}>{forecast.temp}</Text>
                         <MaterialCommunityIcons name="circle-outline" size={15} color="white" style={{ marginTop: -40, fontWeight: '300' }} />
                     </View>
                     <View style={rowContainer}>
                         <MaterialCommunityIcons name="weather-windy" size={20} color="white" style={{opacity: 0.8}}/>
-                        <Text style={styles.windTxt}>{Math.round(weather.wind.speed)}</Text>
+                        <Text style={styles.windTxt}>{forecast.wind}</Text>
                         <MaterialCommunityIcons name="water-outline" size={20} color="white" style={{opacity: 0.8}}/>
-                        <Text style={styles.humidityTxt}>{`${weather.main.humidity} %`}</Text>
+                        <Text style={styles.humidityTxt}>{`${forecast.humidity} %`}</Text>
                     </View>
+
+                    <View style={{position: 'absolute', bottom: 60}}>
+                        <View style={[rowContainer, {alignSelf: 'center', marginBottom: 15}]}>
+                            <TouchableOpacity onPress={() => setShowHourly(true)}>
+                                <Text style={showHourly ? styles.active : styles.inactive}>Hourly</Text>
+                            </TouchableOpacity>
+                            <View style={{width: 1.5, height: 15, backgroundColor: '#fff', opacity: 0.7, marginHorizontal: 10}}/>
+                            <TouchableOpacity onPress={() => setShowHourly(false)}>
+                                <Text style={showHourly ? styles.inactive : styles.active}>Week</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {showHourly ? hourlyCarousel() : weeklyCarousel()}
+                    </View>
+
                     <Text 
                         onPress={() => Linking.openURL('https://darksky.net/poweredby/')}
                         style={{position: 'absolute', bottom: 30, alignItems: 'center', color: '#FFF', fontSize: 14, opacity: 0.8}}>
                         Powered by Dark Sky
                     </Text>
-                </SafeAreaView>
+                </ImageBackground>
         );
     };
 
     return (
-        
         <View style={styles.container}>
-        {weatherDetails == null ? <ActivityIndicator size="large" color="#708090" /> : renderWeather()}
+            {weatherDetails == null ? <ActivityIndicator size="large" color="#708090" /> : renderWeather()}
         </View>
+
     )
 }
 
@@ -108,9 +162,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
+        height: '100%',
         alignItems: 'center',
-        justifyContent: 'center',
-        opacity: 0.8
+        justifyContent: 'center'
     },
     rowContainer: {
         flexDirection: 'row', 
@@ -135,25 +189,20 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         opacity: 0.8
     },
-    ellipses: {
-        fontSize: 70,
-        color: "white",
-        paddingBottom: -10
+    inactive: {
+        color: '#fff',
+    },
+    active: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '500'
     }
 });
 
-
-/**
- * 
- *  //<Swiper activeDotColor={'white'}>
-        //<ForecastList forecastList={forecast} />
-
-    //     <MaterialCommunityIcons
-    //     name={WeatherConditions[weatherCondition].icon}
-    //     size={95}
-    //     color='white'
-    // />
-    // <Text style={styles.cityTxt}>{city}</Text>
-    // <Text style={styles.countryTxt}>{country}</Text>
-    //<MaterialCommunityIcons name="circle-outline" size={10} color="white" style={{ marginTop: -25 }} />
- */
+/*
+ <MaterialCommunityIcons
+    name={weatherDetails.icon}
+    size={125}
+    color='white'
+/>
+*/

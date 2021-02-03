@@ -1,52 +1,72 @@
+
+
+
 export const WeatherConditions = {
-    Rain: {
+    'rain': {
         color: '#005BEA',
         title: 'Raining',
         subtitle: 'Get a cup of coffee',
-        icon: 'weather-rainy'
+        icon: 'weather-rainy',
     },
-    Clear: {
+    'clear-day': {
         color: '#f7b733',
         title: 'Sunny',
         subtitle: 'It is hurting my eyes',
         icon: 'weather-sunny'
     },
-    Thunderstorm: {
-        color: '#616161',
-        title: 'Stormy',
-        subtitle: 'A Storm is coming',
-        icon: 'weather-lightning'
+    'clear-night': {
+        color: '#f7b733',
+        title: 'Sunny',
+        subtitle: 'It is hurting my eyes',
+        icon: 'weather-sunny'
     },
-    Clouds: {
+    'cloudly': {
         color: '#708090',
         title: 'Cloudy',
         subtitle: 'Everywhere',
         icon: 'weather-cloudy'
     },
-
-    Snow: {
+    'thunderstorm': {
+        color: '#616161',
+        title: 'Stormy',
+        subtitle: 'A Storm is coming',
+        icon: 'weather-lightning'
+    },
+    'partly-cloudy-day': {
+        color: '#616161',
+        title: 'Stormy',
+        subtitle: 'Cloudy',
+        icon: 'weather-cloudy'
+    },
+    'partly-cloudy-night': {
+        color: '#616161',
+        title: 'Stormy',
+        subtitle: 'Cloudy',
+        icon: 'weather-cloudy'
+    },
+    'snow': {
         color: '#00d2ff',
         title: 'Snow',
         subtitle: 'Get out and build a snowman for me',
         icon: 'weather-snowy'
     },
-    Drizzle: {
+    'sleet': {
         color: '#076585',
         title: 'Drizzle',
         subtitle: 'Partially raining...',
         icon: 'weather-hail'
     },
-    Haze: {
-        color: '#66A6FF',
-        title: 'Haze',
-        subtitle: 'Another name for Partial Raining',
-        icon: 'weather-hail'
+    'fog': {
+        color: '#708090',
+        title: 'Mist',
+        subtitle: "Don't roam in forests!",
+        icon: 'weather-fog'
     },
-    Mist: {
+    'wind': {
         color: '#708090',
         title: 'Mist',
         subtitle: "Don't roam in forests!",
         icon: 'weather-fog'
     }
-
 };
+

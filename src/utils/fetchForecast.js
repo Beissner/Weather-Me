@@ -1,56 +1,60 @@
 import axios from 'axios';
-import { API_KEY } from '../config/WeatherAPIKey';
+import { DARK_SKY_API_KEY } from '../config/WeatherAPIKey';
 
 export const fetchForecast = (long, lat) => {
 
-    const url = `https://api.darksky.net/forecast/${API_KEY}/${lat},${long}`;
+    const url = `https://api.darksky.net/forecast/${DARK_SKY_API_KEY}/${lat},${long}`;
     
     return axios
     .get(url)
     .then(response => {
-        console.info('Successfully fetched forecast!', response);
-        const weatherObj = {temp: response.data.currently.apparentTemperature};
-        // const convertedDate = new Date(response.data.list[0].dt * 1000);
-        // console.log('value of convertedDate: ', convertedDate);
-        // const forecastArray = response.data.list.map((entry, index) => {
-        //     const date = new Date(entry.dt * 1000);
-        //     const dateString = date.toString();
-        //     // if (dateString.includes('13:00')) {
-        //     //     console.log("string at 13:00: ", dateString);
-        //     //     const weekDay = dateString.slice(0, 4);
-        //     //     weatherForecastArray[index] = { weekDay: weekDay, temp: entry.main.temp }
-        //     // }
-        //     return dateString;
-        // });
 
-        // console.log('value of forecastArray: ', forecastArray);
-        // return response.data;
+        const { currently, hourly, daily } = response.data;
+        const humidity = currently.humidity * 100;
+        const weatherObj = {
+          temp: Math.round(currently.apparentTemperature), 
+          title: currently.summary, 
+          humidity, 
+          wind: Math.round(currently.windSpeed),
+          summary: hourly.summary,
+          icon: daily.icon
+        };
+        
+        //  hourly forecast (only need first 24)
+        let hourlyForecast = [];
+        for(let i=0; i <= 24; i++) {
+          const date = new Date(hourly.data[i].time * 1000);
+          let hour = date.getHours();
+          let prettyTime = '';
+        
+           //convert if needed
+           if(hour > 12) {
+            hour = hour - 12;
+            prettyTime = `${hour} PM`;
+          } else if(hour == 0) {
+            prettyTime = '12 AM';
+          } else {
+            prettyTime = `${hour} AM`;
+          }
+
+          hourlyForecast.push({ time: prettyTime, summary: hourly.data[i].summary, temp: Math.round(hourly.data[i].temperature), icon: hourly.data[i].icon });
+        }
+
+        //week forecast
+        const weekArray = daily.data.map(entry => {
+          const date = new Date(entry.time * 1000);
+          const days = ['Sun','Mon','Tues','Wed','Thurs','Fri','Sat'];
+          let day = days[date.getDay()];
+
+          return { day, icon: entry.icon, summary: entry.summary, tempHigh: Math.round(entry.temperatureHigh), tempLow: Math.round(entry.temperatureLow), precipProb: entry.precipProbablility };
+        });
+
+        weatherObj.hourlyForecast = hourlyForecast;
+        weatherObj.weekForecast = weekArray;
+        console.log('value of weatherObj: ', weatherObj);
+        return weatherObj;
     })
     .catch(error => {
       console.log('Failed to fetch forecast', {error, long, lat});
     });
 };
-
-// const fetchForecast = (long, lat) => {
-//     fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${long}&APPID=${API_KEY}&units=imperial`
-//     ).then(res => res.json())
-//         .then(jsonResults => {
-//             const convertedDate = new Date(jsonResults.list[0].dt * 1000);
-//             const weatherForecastArray = [];
-//             let index = 0;
-//             const datesArray = jsonResults.list.map((entry) => {
-//                 const date = new Date(entry.dt * 1000);
-//                 const dateString = date.toString();
-//                 if (dateString.includes('13:00')) {
-//                     console.log("string at 13:00: ", dateString);
-//                     const weekDay = dateString.slice(0, 4);
-//                     weatherForecastArray[index] = { weekDay: weekDay, temp: entry.main.temp }
-//                     index++;
-//                 }
-//                 return new Date(entry.dt * 1000);
-//             });
-//             //this.setState({ weatherForecastArray });
-//             setForecast(weatherForecastArray);
-//         })
-//         .catch((err) => console.log(err));
-// };
