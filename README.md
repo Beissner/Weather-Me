@@ -1,8 +1,8 @@
 # Weather-Me
-> React Native weather app built using Expo. Utilizes user location to fetch data from DarkSky API.
+> React Native weather app built using Expo.
 
-* Use `expo-location` to display city
-* Use `DarkSky API` to fetch current temperature, wind, humidity, week and hourly forecast
+* Uses `expo-location` to find user location and display city
+* Uses `DarkSky API` to fetch current temperature, wind, humidity, week and hourly forecast
 * Display week and hourly forecast in horizontal carousel
 
 
