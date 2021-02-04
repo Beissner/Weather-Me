@@ -51,10 +51,9 @@ export const fetchForecast = (long, lat) => {
 
         weatherObj.hourlyForecast = hourlyForecast;
         weatherObj.weekForecast = weekArray;
-        console.log('value of weatherObj: ', weatherObj);
         return weatherObj;
     })
     .catch(error => {
-      console.log('Failed to fetch forecast', {error, long, lat});
+      console.warn('Failed to fetch forecast', {error, long, lat});
     });
 };

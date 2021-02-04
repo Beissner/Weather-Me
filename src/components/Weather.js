@@ -4,9 +4,7 @@ import { StyleSheet, Text, View, SafeAreaView, ActivityIndicator, Linking, Dimen
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import _ from 'lodash';
 import { WeatherConditions } from '../utils/WeatherConditions';
-import { fetchWeather } from '../utils/fetchWeather';
 import { fetchForecast } from '../utils/fetchForecast';
 import Carousel from 'react-native-snap-carousel';
 import { getDate } from '../utils/getDate';
@@ -45,7 +43,6 @@ export const Weather = (props) => {
 
             const forecast = await fetchForecast(longitude, latitude);
             setForecast(forecast);
-
             setWeatherDetails(WeatherConditions[forecast.icon]);
        }
  
@@ -55,11 +52,11 @@ export const Weather = (props) => {
 
     const renderHourlyItem = ({item}) => {
         return (
-            <View style={{ alignItems: 'center',  paddingHorizontal: 4 }}>
-                <Text style={{ color: '#fff', fontSize: 18, paddingBottom: 12}}>{ item.time }</Text>
+            <View style={styles.itemContainer}>
+                <Text style={styles.carouselItemTitle}>{ item.time }</Text>
                 <View style={styles.rowContainer}>
-                    <Text style={{ color: '#fff', fontSize: 22, fontWeight: '500' }}>{ item.temp }</Text>
-                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                    <Text style={styles.carouselItemTemp}>{ item.temp }</Text>
+                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={styles.degreeIconSmall} />
                 </View>
             </View>
         );
@@ -67,15 +64,15 @@ export const Weather = (props) => {
 
     const renderWeekItem = ({item}) => {
         return (
-            <View style={{ alignItems: 'center',  paddingHorizontal: 4 }}>
-                <Text style={{ color: '#fff', fontSize: 18, paddingBottom: 12}}>{ item.day }</Text>
+            <View style={styles.itemContainer}>
+                <Text style={styles.carouselItemTitle}>{ item.day }</Text>
                 <View style={styles.rowContainer}>
-                    <Text style={{ color: '#fff', fontSize: 22, fontWeight: '500' }}>{item.tempHigh}</Text>
-                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                    <Text style={styles.carouselItemTemp}>{item.tempHigh}</Text>
+                    <MaterialCommunityIcons name="circle-outline" size={8} color="white" style={styles.degreeIconSmall} />
                 </View>
                 <View style={styles.rowContainer}>
                     <Text style={{ color: '#fff', fontSize: 20 }}>{item.tempLow}</Text>
-                    <MaterialCommunityIcons name="circle-outline" size={7} color="white" style={{ marginTop: -10, fontWeight: '300' }} />
+                    <MaterialCommunityIcons name="circle-outline" size={7} color="white" style={styles.degreeIconSmall} />
                 </View>
             </View>
         );
@@ -109,12 +106,11 @@ export const Weather = (props) => {
                     style={container}
                 >
                     <View style={{position: 'absolute', top: 50, alignItems: 'center'}}>
-                        <Text style={{color: '#FFF', fontSize: 26, opacity: 0.8}}>{getDate()}</Text>
-                        <Text style={{color: '#FFF', fontSize: 20, opacity: 0.8}}>{city}</Text>
+                        <Text style={styles.date}>{getDate()}</Text>
+                        <Text style={[styles.date,{fontSize: 20}]}>{city}</Text>
                     </View>
 
-                   
-                    <Text style={{color: '#FFF', fontSize: 22, marginVertical: 10}}>{forecast.title}</Text>
+                    <Text style={styles.forecastTitle}>{forecast.title}</Text>
 
                     <View style={rowContainer}>
                         <Text style={tempTxt}>{forecast.temp}</Text>
@@ -122,17 +118,17 @@ export const Weather = (props) => {
                     </View>
                     <View style={rowContainer}>
                         <MaterialCommunityIcons name="weather-windy" size={20} color="white" style={{opacity: 0.8}}/>
-                        <Text style={styles.windTxt}>{forecast.wind}</Text>
+                        <Text style={styles.windTxt}>{`${forecast.wind} mph`}</Text>
                         <MaterialCommunityIcons name="water-outline" size={20} color="white" style={{opacity: 0.8}}/>
                         <Text style={styles.humidityTxt}>{`${forecast.humidity} %`}</Text>
                     </View>
 
-                    <View style={{position: 'absolute', bottom: 60}}>
+                    <View style={styles.carouselContainer}>
                         <View style={[rowContainer, {alignSelf: 'center', marginBottom: 15}]}>
                             <TouchableOpacity onPress={() => setShowHourly(true)}>
                                 <Text style={showHourly ? styles.active : styles.inactive}>Hourly</Text>
                             </TouchableOpacity>
-                            <View style={{width: 1.5, height: 15, backgroundColor: '#fff', opacity: 0.7, marginHorizontal: 10}}/>
+                            <View style={styles.divider}/>
                             <TouchableOpacity onPress={() => setShowHourly(false)}>
                                 <Text style={showHourly ? styles.inactive : styles.active}>Week</Text>
                             </TouchableOpacity>
@@ -142,7 +138,7 @@ export const Weather = (props) => {
 
                     <Text 
                         onPress={() => Linking.openURL('https://darksky.net/poweredby/')}
-                        style={{position: 'absolute', bottom: 30, alignItems: 'center', color: '#FFF', fontSize: 14, opacity: 0.8}}>
+                        style={styles.darkSky}>
                         Powered by Dark Sky
                     </Text>
                 </ImageBackground>
@@ -153,7 +149,6 @@ export const Weather = (props) => {
         <View style={styles.container}>
             {weatherDetails == null ? <ActivityIndicator size="large" color="#708090" /> : renderWeather()}
         </View>
-
     )
 }
 
@@ -196,6 +191,53 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '500'
+    },
+    date: {
+        color: '#FFF', 
+        fontSize: 26, 
+        opacity: 0.8
+    },
+    forecastTitle: {
+        color: '#FFF', 
+        fontSize: 22, 
+        marginVertical: 10
+    },
+    carouselContainer: {
+        position: 'absolute', 
+        bottom: 60
+    },
+    itemContainer: { 
+        alignItems: 'center',  
+        paddingHorizontal: 4 
+    },
+    carouselItemTitle: { 
+        color: '#fff', 
+        fontSize: 18, 
+        paddingBottom: 12
+    },
+    carouselItemTemp: { 
+        color: '#fff', 
+        fontSize: 22, 
+        fontWeight: '500' 
+    },
+    degreeIconSmall: { 
+        marginTop: -10, 
+        fontWeight: '300' 
+    },
+    divider: {
+        width: 1.5, 
+        height: 15, 
+        backgroundColor: '#fff', 
+        opacity: 0.7, 
+        marginHorizontal: 10
+    },
+    darkSky: {
+        position: 'absolute', 
+        bottom: 30, 
+        alignItems: 'center', 
+        color: '#FFF', 
+        fontSize: 14, 
+        opacity: 0.8
     }
 });
 
